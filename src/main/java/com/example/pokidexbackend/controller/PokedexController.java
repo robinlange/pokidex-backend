@@ -12,15 +12,35 @@ import java.io.IOException;
 @RestController
 public class PokedexController {
 
+    private final PokedexService pokedexService;
+
     @Autowired
-    private PokedexService pokedexService;
+    public PokedexController(PokedexService pokedexService) {
+        this.pokedexService = pokedexService;
+    }
 
     @CrossOrigin
     @GetMapping("/pokemonsData")
-    public String pokemon(@RequestParam(required = true, name = "offset") int offset) {
+    public String getPokemonsData(@RequestParam(name = "offset") int offset) {
         try {
-            return pokedexService.getData(offset);
+            return pokedexService.getPokemonsData(offset);
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping("/pokemonDetailData")
+    public String getPokemonDetailData(@RequestParam(name = "id") int id) {
+        try {
+            return pokedexService.getPokemonDetailData(id);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new RuntimeException(e);
         }
     }
