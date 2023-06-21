@@ -44,4 +44,14 @@ public class PokedexController {
             throw new RuntimeException(e);
         }
     }
+
+    @CrossOrigin
+    @GetMapping("/pokemonEvolutionChainData")
+    public String getEvolutionChainData(@RequestParam(name = "id") int id) {
+        try {
+            return pokedexService.getEvolutionChainData(id);
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
