@@ -1,0 +1,49 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        platforms: linux/arm64
+        push: true
+        tags: robinlange/pokidex-backend:latest
+
+  deploy:
+    runs-on: self-hosted
+    needs: build-and-push
+
+    steps:
+    - name: Pull the latest Docker image
+      run: docker pull robinlange/pokidex-backend:latest
+
+    - name: Stop existing container if exists
+      run: |
+        docker stop pokidex-backend-container || true
+        docker rm pokidex-backend-container || true
+
+    - name: Run the new container
+      run: |
+        docker run -d --name pokidex-backend-container -p 8383:80 robinlange/pokidex-backend:latest
+
