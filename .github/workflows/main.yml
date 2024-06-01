@@ -45,5 +45,5 @@ jobs:
 
     - name: Run the new container
       run: |
-        docker run -d --name pokidex-backend-container -p 8383:8080 --restart unless-stopped robinlange/pokidex-backend:latest
+        docker run -d --name pokidex-backend-container -p 8383:8080 --restart unless-stopped --dns=8.8.8.8 robinlange/pokidex-backend:latest
 
