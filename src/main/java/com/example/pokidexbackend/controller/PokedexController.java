@@ -54,4 +54,17 @@ public class PokedexController {
             throw new RuntimeException(e);
         }
     }
+
+    @CrossOrigin
+    @GetMapping("/items")
+    public String getItemsData(@RequestParam(name = "offset") int offset) {
+        try {
+            return pokedexService.getItemsData(offset);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        }
+    }
 }

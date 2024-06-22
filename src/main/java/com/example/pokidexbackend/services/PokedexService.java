@@ -76,12 +76,12 @@ public class PokedexService {
                 System.out.println("https://pokeapi.co/api/v2/pokemon/" + evolutionChain.getJSONObject("chain").getJSONObject("species").get("name"));
                 zaehler++;
             }
-            if (evolutionChain.getJSONObject("chain").getJSONArray("evolves_to").length() > 0) {
+            if (!evolutionChain.getJSONObject("chain").getJSONArray("evolves_to").isEmpty()) {
                 p2 = new JSONObject(getUrlContent("https://pokeapi.co/api/v2/pokemon/" + evolutionChain.getJSONObject("chain").getJSONArray("evolves_to").getJSONObject(0).getJSONObject("species").get("name")));
                 System.out.println("https://pokeapi.co/api/v2/pokemon/" + evolutionChain.getJSONObject("chain").getJSONArray("evolves_to").getJSONObject(0).getJSONObject("species").get("name"));
                 zaehler++;
 
-                if (evolutionChain.getJSONObject("chain").getJSONArray("evolves_to").getJSONObject(0).getJSONArray("evolves_to").length() > 0) {
+                if (!evolutionChain.getJSONObject("chain").getJSONArray("evolves_to").getJSONObject(0).getJSONArray("evolves_to").isEmpty()) {
                     p3 = new JSONObject(getUrlContent("https://pokeapi.co/api/v2/pokemon/" + evolutionChain.getJSONObject("chain").getJSONArray("evolves_to").getJSONObject(0).getJSONArray("evolves_to").getJSONObject(0).getJSONObject("species").get("name")));
                     System.out.println("https://pokeapi.co/api/v2/pokemon/" + evolutionChain.getJSONObject("chain").getJSONArray("evolves_to").getJSONObject(0).getJSONArray("evolves_to").getJSONObject(0).getJSONObject("species").get("name"));
                     zaehler++;
@@ -158,6 +158,33 @@ public class PokedexService {
         System.out.println(evolutionChainJson);
         System.out.println((String) new JSONObject(getUrlContent("https://pokeapi.co/api/v2/pokemon/" + id)).getJSONObject("species").get("url"));
         return mapToEvolutionChainContent(new JSONObject(evolutionChainJson)).toString();
+    }
+
+    public String getItemsData(int offset) throws IOException, InterruptedException {
+        String url = "https://pokeapi.co/api/v2/item?limit=12&offset=" + offset;
+        String itemsJson = getUrlContent(url);
+
+        JSONArray rawItemsArray = new JSONObject(itemsJson).getJSONArray("results");
+        JSONArray mappedItemsArray = new JSONArray();
+
+        for (int i = 0; i < rawItemsArray.length(); i++) {
+            JSONObject pokemon = rawItemsArray.getJSONObject(i);
+            String itemUrl = pokemon.getString("url");
+            String itemJson = getUrlContent(itemUrl);
+            mappedItemsArray.put(mapToItemsContent(new JSONObject(itemJson)));
+        }
+
+        return mappedItemsArray.toString();
+    }
+
+    private JSONObject mapToItemsContent(JSONObject item) {
+        JSONObject relevantItemContent = new JSONObject();
+        relevantItemContent.put("id", item.get("id"));
+        relevantItemContent.put("name", item.get("name"));
+        relevantItemContent.put("img", item.getJSONObject("sprites").get("default"));
+        relevantItemContent.put("category", item.getJSONObject("category").get("name"));
+
+        return relevantItemContent;
     }
 }
 
