@@ -73,22 +73,17 @@ public class PokedexService {
         try {
             if (!evolutionChain.getJSONObject("chain").getJSONObject("species").get("name").equals("")) {
                 p1 = new JSONObject(getUrlContent("https://pokeapi.co/api/v2/pokemon/" + evolutionChain.getJSONObject("chain").getJSONObject("species").get("name")));
-                System.out.println("https://pokeapi.co/api/v2/pokemon/" + evolutionChain.getJSONObject("chain").getJSONObject("species").get("name"));
                 zaehler++;
             }
             if (!evolutionChain.getJSONObject("chain").getJSONArray("evolves_to").isEmpty()) {
                 p2 = new JSONObject(getUrlContent("https://pokeapi.co/api/v2/pokemon/" + evolutionChain.getJSONObject("chain").getJSONArray("evolves_to").getJSONObject(0).getJSONObject("species").get("name")));
-                System.out.println("https://pokeapi.co/api/v2/pokemon/" + evolutionChain.getJSONObject("chain").getJSONArray("evolves_to").getJSONObject(0).getJSONObject("species").get("name"));
                 zaehler++;
 
                 if (!evolutionChain.getJSONObject("chain").getJSONArray("evolves_to").getJSONObject(0).getJSONArray("evolves_to").isEmpty()) {
                     p3 = new JSONObject(getUrlContent("https://pokeapi.co/api/v2/pokemon/" + evolutionChain.getJSONObject("chain").getJSONArray("evolves_to").getJSONObject(0).getJSONArray("evolves_to").getJSONObject(0).getJSONObject("species").get("name")));
-                    System.out.println("https://pokeapi.co/api/v2/pokemon/" + evolutionChain.getJSONObject("chain").getJSONArray("evolves_to").getJSONObject(0).getJSONArray("evolves_to").getJSONObject(0).getJSONObject("species").get("name"));
                     zaehler++;
                 }
             }
-            System.out.println(zaehler);
-            System.out.println("----------------------------------------------------");
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -185,6 +180,39 @@ public class PokedexService {
         relevantItemContent.put("category", item.getJSONObject("category").get("name"));
 
         return relevantItemContent;
+    }
+
+    public String getItemDetailData(int id) throws IOException, InterruptedException {
+        String itemJson = getUrlContent("https://pokeapi.co/api/v2/item/" + id);
+
+        return mapToItemDetailContent(new JSONObject(itemJson)).toString();
+    }
+
+    public JSONObject mapToItemDetailContent(JSONObject item) {
+        JSONObject itemDetailContent = new JSONObject();
+        itemDetailContent.put("name", item.get("name"));
+        itemDetailContent.put("id", item.get("id"));
+        itemDetailContent.put("img", item.getJSONObject("sprites").get("default"));
+
+        JSONArray effectEntries = item.getJSONArray("effect_entries");
+        for (int i = 0; i < effectEntries.length(); i++) {
+            JSONObject effectEntry = effectEntries.getJSONObject(i);
+                itemDetailContent.put("effect", effectEntry.get("effect"));
+                itemDetailContent.put("short_effect", effectEntry.get("short_effect"));
+                break;
+        }
+
+        itemDetailContent.put("category", item.getJSONObject("category").get("name"));
+        itemDetailContent.put("cost", item.get("cost"));
+
+        JSONArray attributes = new JSONArray();
+        JSONArray rawAttributes = item.getJSONArray("attributes");
+        for (int i = 0; i < rawAttributes.length(); i++) {
+            attributes.put(rawAttributes.getJSONObject(i).get("name"));
+        }
+        itemDetailContent.put("attributes", attributes);
+
+        return itemDetailContent;
     }
 }
 

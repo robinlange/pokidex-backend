@@ -67,4 +67,17 @@ public class PokedexController {
             throw new RuntimeException(e);
         }
     }
+
+    @CrossOrigin
+    @GetMapping("/itemDetailData")
+    public String getItemDetailData(@RequestParam(name = "id") int id) {
+        try {
+            return pokedexService.getItemDetailData(id);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        }
+    }
 }
